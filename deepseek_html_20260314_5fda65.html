@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divided Kingdom: Kings & Prophets – Enhanced Overlap Resolution</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #283048, #1e2c3a);
+            color: white;
+            padding: 30px 40px;
+            border-bottom: 4px solid #ffd700;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .header h1 strong {
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .timeline-controls {
+            padding: 20px 30px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, input {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        select:hover, input:hover {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66,153,225,0.15);
+        }
+
+        .zoom-controls {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: white;
+            color: #2d3748;
+            font-size: 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid #e2e8f0;
+            font-weight: bold;
+        }
+
+        .zoom-btn:hover {
+            background: #4299e1;
+            color: white;
+            border-color: #4299e1;
+            transform: scale(1.05);
+        }
+
+        .timeline-wrapper {
+            padding: 30px 30px 30px 50px;
+            overflow-x: auto;
+            background: linear-gradient(to bottom, #ffffff 0%, #f7fafc 100%);
+            position: relative;
+        }
+
+        .timeline-container {
+            position: relative;
+            min-width: 1400px;
+            height: 980px; /* increased for multiple prophet rows */
+            background: repeating-linear-gradient(
+                to right,
+                rgba(0,0,0,0.02) 0px,
+                rgba(0,0,0,0.02) 1px,
+                transparent 1px,
+                transparent 20px
+            );
+            border-left: 3px solid #2d3748;
+            border-right: 3px solid #2d3748;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .time-axis {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to bottom, #edf2f7, #e2e8f0);
+            border-bottom: 3px solid #2d3748;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .time-marker {
+            position: absolute;
+            top: 10px;
+            transform: translateX(-50%);
+            font-size: 13px;
+            color: #1a202c;
+            font-weight: 700;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #cbd5e0;
+            z-index: 20;
+        }
+
+        .time-marker::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            width: 2px;
+            height: 910px; /* covers full timeline */
+            background: repeating-linear-gradient(
+                to bottom,
+                #a0aec0,
+                #a0aec0 5px,
+                transparent 5px,
+                transparent 10px
+            );
+            transform: translateX(-50%);
+        }
+
+        .kingdom-header {
+            position: absolute;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 30;
+            background: #2d3748;
+        }
+
+        .kingdom-header.israel {
+            top: 75px;
+            left: 30px;
+            background: linear-gradient(135deg, #c53030, #9b2c2c);
+            border-left: 5px solid #fc8181;
+        }
+
+        .kingdom-header.judah {
+            top: 250px;
+            left: 30px;
+            background: linear-gradient(135deg, #2c5282, #1a365d);
+            border-left: 5px solid #90cdf4;
+        }
+
+        .kingdom-header.prophets {
+            top: 430px;
+            left: 30px;
+            background: linear-gradient(135deg, #b7940b, #7b4f0b);
+            border-left: 5px solid #fbd38d;
+        }
+
+        .king-row {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 70px;
+            transition: all 0.3s;
+        }
+
+        .king-row.israel {
+            top: 150px;
+        }
+
+        .king-row.judah {
+            top: 330px;
+        }
+
+        /* prophet rows - three parallel tracks */
+        .prophet-row {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 60px;
+        }
+        .prophet-row-1 { top: 520px; }
+        .prophet-row-2 { top: 590px; }
+        .prophet-row-3 { top: 660px; }
+
+        .king-block {
+            position: absolute;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            padding: 8px 4px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+            border: 2px solid white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            backdrop-filter: blur(2px);
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .king-block:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.3);
+            z-index: 100;
+            border: 3px solid #ffd700;
+        }
+
+        .king-block.israel {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+        }
+
+        .king-block.judah {
+            background: linear-gradient(135deg, #3182ce, #2c5282);
+        }
+
+        .king-block.good {
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .king-block.evil {
+            border: 4px solid #1a202c;
+            filter: grayscale(0.3);
+        }
+
+        .king-block.mixed {
+            border: 4px solid #ed8936;
+        }
+
+        /* prophet block style */
+        .prophet-block {
+            position: absolute;
+            height: 45px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #ecc94b, #b7791f);
+            border: 2px solid #faf089;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+            cursor: help;
+            transition: all 0.2s;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+            z-index: 15;
+        }
+
+        .prophet-block:hover {
+            transform: scale(1.05) translateY(-3px);
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            border-color: white;
+            z-index: 50;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+        }
+
+        .prophet-indicator {
+            position: absolute;
+            bottom: -3px;
+            right: -3px;
+            width: 20px;
+            height: 20px;
+            background: #ffd700;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #1a202c;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 16px;
+            font-size: 13px;
+            max-width: 320px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            z-index: 1000;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            border-left: 6px solid #ffd700;
+            line-height: 1.6;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tooltip h4 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #ffd700;
+            border-bottom: 1px solid #4a5568;
+            padding-bottom: 5px;
+        }
+
+        .prophet-list {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #4a5568;
+        }
+
+        .prophet-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px 0;
+        }
+
+        .prophet-dot {
+            width: 8px;
+            height: 8px;
+            background: #ffd700;
+            border-radius: 50%;
+        }
+
+        .info-panel {
+            background: white;
+            padding: 30px;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+        }
+
+        .king-details {
+            display: none;
+            background: linear-gradient(135deg, #f9fafc, #ffffff);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .king-details.active {
+            display: block;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .details-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .details-header h2 {
+            color: #1a202c;
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-right: auto;
+        }
+
+        .kingdom-badge {
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .badge-israel {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+        }
+
+        .badge-judah {
+            background: linear-gradient(135deg, #3182ce, #2c5282);
+        }
+
+        .assessment-badge {
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .assessment-good {
+            background: linear-gradient(135deg, #48bb78, #2f855a);
+            border: 2px solid #ffd700;
+        }
+
+        .assessment-mixed {
+            background: linear-gradient(135deg, #ed8936, #c05621);
+        }
+
+        .assessment-evil {
+            background: linear-gradient(135deg, #718096, #4a5568);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .detail-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .detail-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: #4299e1;
+        }
+
+        .detail-card h3 {
+            color: #4a5568;
+            font-size: 13px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-card p {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        .prophet-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: #1a202c;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 3px;
+            border: 1px solid #ffd700;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .legend {
+            display: flex;
+            gap: 30px;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 60px;
+            flex-wrap: wrap;
+            justify-content: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .legend-color.israel {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+        }
+
+        .legend-color.judah {
+            background: linear-gradient(135deg, #3182ce, #2c5282);
+        }
+
+        .legend-color.prophet {
+            background: linear-gradient(135deg, #ecc94b, #b7791f);
+            width: 30px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            background: #1a202c;
+            color: #a0aec0;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .footer span {
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .timeline-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .zoom-controls {
+                margin-left: 0;
+                justify-content: center;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><strong>📖 Divided Kingdom</strong> Kings & Prophets</h1>
+            <p>Expanded descriptions • Contemporary rulers • Non‑overlapping prophet rows</p>
+        </div>
+
+        <div class="timeline-controls">
+            <div class="control-group">
+                <label>🔍 Kingdom</label>
+                <select id="kingdomFilter">
+                    <option value="all">All Kings</option>
+                    <option value="israel">Israel Only</option>
+                    <option value="judah">Judah Only</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>⚖️ Assessment</label>
+                <select id="assessmentFilter">
+                    <option value="all">All</option>
+                    <option value="good">Good / Righteous</option>
+                    <option value="mixed">Mixed</option>
+                    <option value="evil">Evil</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>📅 Focus Year</label>
+                <input type="range" id="yearRange" min="931" max="550" value="760" step="1">
+                <span id="yearDisplay" style="min-width: 70px; font-weight: bold; color: #2d3748;">760 BC</span>
+            </div>
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomIn">+</button>
+                <button class="zoom-btn" id="zoomOut">−</button>
+                <button class="zoom-btn" id="resetZoom">↺</button>
+            </div>
+        </div>
+
+        <div class="timeline-wrapper">
+            <div class="timeline-container" id="timelineContainer">
+                <div class="time-axis" id="timeAxis"></div>
+                <div class="kingdom-header israel">🏛️ ISRAEL (NORTH)</div>
+                <div class="kingdom-header judah">🏛️ JUDAH (SOUTH)</div>
+                <div class="kingdom-header prophets">📯 PROPHETS (three parallel rows)</div>
+                
+                <!-- King rows -->
+                <div class="king-row israel" id="israelRow"></div>
+                <div class="king-row judah" id="judahRow"></div>
+                
+                <!-- Three prophet rows for overlap resolution -->
+                <div class="prophet-row prophet-row-1" id="prophetRow1"></div>
+                <div class="prophet-row prophet-row-2" id="prophetRow2"></div>
+                <div class="prophet-row prophet-row-3" id="prophetRow3"></div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="king-details" id="kingDetails">
+                <!-- King details will be dynamically inserted -->
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color israel"></div><span>🇮🇱 Israel</span></div>
+                <div class="legend-item"><div class="legend-color judah"></div><span>🇯🇴 Judah</span></div>
+                <div class="legend-item"><div class="legend-color prophet"></div><span>🔮 Prophet</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #ffd700;"></div><span>👑 Good</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #ed8936;"></div><span>⚡ Mixed</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #4a5568;"></div><span>💀 Evil</span></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>✨ <span>Click any king</span> for expanded description & contemporary rulers • <span>Hover prophets</span> for details • Three rows prevent overlap</p>
+        </div>
+    </div>
+
+    <div id="tooltip" class="tooltip" style="opacity: 0; position: absolute; pointer-events: none;"></div>
+
+    <script>
+        // ---------- KINGS DATA with expanded descriptions and contemporary rulers ----------
+        const kingsData = [
+            // Israel (North)
+            { id: 1, name: "Jeroboam I", kingdom: "israel", start: 931, end: 910, assessment: "evil", 
+              prophets: ["Ahijah", "Man of God from Judah"], 
+              description: "First king of Northern Israel. To secure his reign, he established golden calves at Dan and Bethel, instituting a lasting sin pattern. He fortified Shechem and Penuel, but his cultic innovations led the kingdom into idolatry. Despite God's promise through Ahijah, he did not trust divine protection.",
+              length: 22, predecessor: "None (division)", successor: "Nadab",
+              contemporaryJudah: "Rehoboam, Abijah" },
+            { id: 2, name: "Nadab", kingdom: "israel", start: 910, end: 909, assessment: "evil", prophets: [], 
+              description: "Son of Jeroboam. Continued his father's idolatrous policies. While besieging the Philistine city of Gibbethon, he was assassinated by Baasha of the house of Issachar, fulfilling Ahijah's prophecy against Jeroboam's line.",
+              length: 2, predecessor: "Jeroboam I", successor: "Baasha",
+              contemporaryJudah: "Abijah, Asa" },
+            { id: 3, name: "Baasha", kingdom: "israel", start: 909, end: 886, assessment: "evil", prophets: ["Jehu (son of Hanani)"], 
+              description: "Seized the throne by murdering Nadab and exterminated Jeroboam's entire family. He waged constant war against Asa of Judah and fortified Ramah to control border traffic. The prophet Jehu pronounced judgment on his house for walking in Jeroboam's sins.",
+              length: 24, predecessor: "Nadab", successor: "Elah",
+              contemporaryJudah: "Asa" },
+            { id: 4, name: "Elah", kingdom: "israel", start: 886, end: 885, assessment: "evil", prophets: [], 
+              description: "Son of Baasha. While drunk in the house of his steward Arza in Tirzah, he was assassinated by Zimri, commander of half his chariots. His murder fulfilled Jehu's prophecy against Baasha's dynasty.",
+              length: 2, predecessor: "Baasha", successor: "Zimri",
+              contemporaryJudah: "Asa" },
+            { id: 5, name: "Zimri", kingdom: "israel", start: 885, end: 885, assessment: "evil", prophets: [], 
+              description: "Reigned only seven days after assassinating Elah. When the army proclaimed Omri king, Zimri burned the palace over himself and died. His swift end became a proverb for treachery.",
+              length: 0.02, predecessor: "Elah", successor: "Omri",
+              contemporaryJudah: "Asa" },
+            { id: 6, name: "Omri", kingdom: "israel", start: 885, end: 874, assessment: "evil", prophets: [], 
+              description: "Army commander who defeated rival Tibni and established a powerful dynasty. He purchased the hill of Samaria and built it as the new capital, which became a center of Israelite politics and later prophetic critique. His political influence extended to Moab (Mesha Stele).",
+              length: 12, predecessor: "Zimri", successor: "Ahab",
+              contemporaryJudah: "Asa, Jehoshaphat" },
+            { id: 7, name: "Ahab", kingdom: "israel", start: 874, end: 853, assessment: "evil", prophets: ["Elijah","Micaiah"], 
+              description: "Married Jezebel of Sidon, intensifying Baal worship in Israel. He built a temple for Baal in Samaria but also showed moments of hesitant obedience. Under Elijah's confrontation at Carmel, he witnessed God's power, yet he remained spiritually weak. He died in battle at Ramoth-Gilead, despite disguising himself.",
+              length: 22, predecessor: "Omri", successor: "Ahaziah",
+              contemporaryJudah: "Jehoshaphat" },
+            { id: 8, name: "Ahaziah", kingdom: "israel", start: 853, end: 852, assessment: "evil", prophets: ["Elijah"], 
+              description: "Son of Ahab. He fell through the lattice of his upper room and was injured. Instead of seeking Yahweh, he sent messengers to consult Baal-Zebub of Ekron. Elijah intercepted them and pronounced the king's death. He died without an heir.",
+              length: 2, predecessor: "Ahab", successor: "Jehoram",
+              contemporaryJudah: "Jehoshaphat, Jehoram (co-regent)" },
+            { id: 9, name: "Jehoram (Joram)", kingdom: "israel", start: 852, end: 841, assessment: "evil", prophets: ["Elisha","Obadiah"], 
+              description: "Another son of Ahab. He removed the pillar of Baal but clung to Jeroboam's golden calves. He allied with Jehoshaphat and the king of Edom against Moab. Elisha ministered throughout his reign, performing miracles and advising. He was wounded in battles with Hazael and later killed by Jehu.",
+              length: 12, predecessor: "Ahaziah", successor: "Jehu",
+              contemporaryJudah: "Jehoram, Ahaziah" },
+            { id: 10, name: "Jehu", kingdom: "israel", start: 841, end: 814, assessment: "mixed", prophets: ["Elisha","Jonah"], 
+              description: "Anointed by Elisha's disciple with orders to destroy Ahab's house. He executed Jehoram, Ahaziah of Judah, and Jezebel, then massacred Baal worshipers in a purge. God commended his zeal, but he did not depart from the golden calves. His dynasty lasted four generations, fulfilling prophecy.",
+              length: 28, predecessor: "Jehoram", successor: "Jehoahaz",
+              contemporaryJudah: "Athaliah, Joash" },
+            { id: 11, name: "Jehoahaz", kingdom: "israel", start: 814, end: 798, assessment: "evil", prophets: ["Elisha"], 
+              description: "Son of Jehu. Heavily oppressed by Hazael and Ben-Hadad of Aram. He sought the LORD, who gave Israel a deliverer, but the people continued in idolatry. The Arameans reduced his army to fifty horsemen and ten chariots.",
+              length: 17, predecessor: "Jehu", successor: "Jehoash",
+              contemporaryJudah: "Joash" },
+            { id: 12, name: "Jehoash (Joash)", kingdom: "israel", start: 798, end: 782, assessment: "evil", prophets: ["Elisha"], 
+              description: "Son of Jehoahaz. He visited the dying Elisha, who had him shoot arrows of victory over Aram. He recovered Israelite cities from Ben-Hadad. Despite this, he maintained the calf cult. He also defeated Amaziah of Judah in a military confrontation.",
+              length: 16, predecessor: "Jehoahaz", successor: "Jeroboam II",
+              contemporaryJudah: "Amaziah" },
+            { id: 13, name: "Jeroboam II", kingdom: "israel", start: 782, end: 753, assessment: "evil", prophets: ["Jonah","Amos","Hosea"], 
+              description: "Longest reigning northern king. He restored Israel's borders from Lebo-hamath to the Dead Sea, fulfilling Jonah's prophecy. Economically prosperous, the era saw great social injustice, which Amos and Hosea vehemently denounced. His reign masked internal decay.",
+              length: 41, predecessor: "Jehoash", successor: "Zechariah",
+              contemporaryJudah: "Amaziah, Uzziah" },
+            { id: 14, name: "Zechariah", kingdom: "israel", start: 753, end: 752, assessment: "evil", prophets: ["Hosea"], 
+              description: "Last of Jehu's dynasty, reigning only six months. He did evil like his fathers. Shallum assassinated him in public, fulfilling the prophecy that Jehu's line would sit on the throne to the fourth generation.",
+              length: 0.5, predecessor: "Jeroboam II", successor: "Shallum",
+              contemporaryJudah: "Uzziah" },
+            { id: 15, name: "Shallum", kingdom: "israel", start: 752, end: 752, assessment: "evil", prophets: [], 
+              description: "Assassinated Zechariah and reigned one month in Samaria. He was then killed by Menahem, who struck him down and became king. His coup added to the rapid instability of the northern kingdom.",
+              length: 0.08, predecessor: "Zechariah", successor: "Menahem",
+              contemporaryJudah: "Uzziah" },
+            { id: 16, name: "Menahem", kingdom: "israel", start: 752, end: 742, assessment: "evil", prophets: [], 
+              description: "Consolidated power by brutally sacking Tiphsah and ripping open pregnant women. He paid heavy tribute to Tiglath-Pileser III of Assyria (called Pul) by taxing wealthy Israelites, becoming a vassal. His reign accelerated Assyrian encroachment.",
+              length: 10, predecessor: "Shallum", successor: "Pekahiah",
+              contemporaryJudah: "Uzziah, Jotham" },
+            { id: 17, name: "Pekahiah", kingdom: "israel", start: 742, end: 740, assessment: "evil", prophets: [], 
+              description: "Son of Menahem. He continued his father's pro-Assyrian policies and the calf worship. After two years, his military officer Pekah, with fifty Gileadites, assassinated him in the palace citadel.",
+              length: 2, predecessor: "Menahem", successor: "Pekah",
+              contemporaryJudah: "Jotham" },
+            { id: 18, name: "Pekah", kingdom: "israel", start: 740, end: 732, assessment: "evil", prophets: ["Hosea"], 
+              description: "Powerful usurper who reigned twenty years, though chronology may include rival reign. He allied with Rezin of Syria against Judah, trying to replace Ahaz with a puppet. Ahaz appealed to Assyria, leading Tiglath-Pileser to capture much of northern Israel (Galilee, Gilead) and deport the people. Pekah was assassinated by Hoshea.",
+              length: 20, predecessor: "Pekahiah", successor: "Hoshea",
+              contemporaryJudah: "Jotham, Ahaz" },
+            { id: 19, name: "Hoshea", kingdom: "israel", start: 732, end: 722, assessment: "evil", prophets: ["Hosea"], 
+              description: "Last king of Israel. Initially an Assyrian vassal, he secretly conspired with Egypt's king So and stopped paying tribute. Shalmaneser V besieged Samaria for three years; the city fell in 722 BC to Sargon II. The population was exiled, becoming the 'lost ten tribes.' Hosea's ministry ended with the nation's collapse.",
+              length: 9, predecessor: "Pekah", successor: "None (Assyrian exile)",
+              contemporaryJudah: "Ahaz, Hezekiah" },
+
+            // Judah (South)
+            { id: 101, name: "Rehoboam", kingdom: "judah", start: 931, end: 913, assessment: "evil", prophets: ["Shemaiah"], 
+              description: "Son of Solomon. His harsh response to northern grievances ('my father scourged you with whips, I will with scorpions') triggered the kingdom's division. He fortified Judah's cities but also allowed high places and pagan practices. When he planned to reunite by force, Shemaiah forbade it, saving lives.",
+              length: 17, predecessor: "Solomon", successor: "Abijah",
+              contemporaryIsrael: "Jeroboam I" },
+            { id: 102, name: "Abijah (Abijam)", kingdom: "judah", start: 913, end: 911, assessment: "evil", prophets: ["Shemaiah"], 
+              description: "Son of Rehoboam. He warred with Jeroboam I and, despite being outnumbered, defeated him because he relied on the LORD. However, he continued his father's sins and did not fully remove idolatry. His reign was brief.",
+              length: 3, predecessor: "Rehoboam", successor: "Asa",
+              contemporaryIsrael: "Jeroboam I" },
+            { id: 103, name: "Asa", kingdom: "judah", start: 911, end: 870, assessment: "good", prophets: ["Shemaiah","Hanani"], 
+              description: "Great reformer who removed male cult prostitutes, smashed idols, and deposed his grandmother Maachah for making an Asherah pole. He renewed the covenant and brought much silver to the temple. Later, when threatened by Baasha, he made a treaty with Ben-Hadad of Aram—a move Hanani the seer rebuked, and Asa imprisoned him. In his old age he suffered from a foot disease but did not seek the LORD.",
+              length: 41, predecessor: "Abijah", successor: "Jehoshaphat",
+              contemporaryIsrael: "Nadab, Baasha, Elah, Zimri, Omri" },
+            { id: 104, name: "Jehoshaphat", kingdom: "judah", start: 870, end: 848, assessment: "good", prophets: ["Micaiah","Jahaziel","Eliezer"], 
+              description: "Wealthy and powerful king who walked in Asa's ways. He removed high places and sent officials with the Book of the Law to teach in cities. However, he made a disastrous alliance with Ahab (his son married Athaliah) and joined in battle, nearly dying. Later he appointed judges and trusted God when Moab and Ammon invaded; Jahaziel prophesied victory. He also attempted a navy that was wrecked because of alliance with Ahaziah.",
+              length: 25, predecessor: "Asa", successor: "Jehoram",
+              contemporaryIsrael: "Ahab, Ahaziah, Jehoram" },
+            { id: 105, name: "Jehoram", kingdom: "judah", start: 848, end: 841, assessment: "evil", prophets: ["Elijah (letter)"], 
+              description: "Son of Jehoshaphat, married to Athaliah (Ahab's daughter). He killed all his brothers to secure power. He reintroduced Baal worship and high places. Edom and Libnah revolted during his reign. He received a letter from Elijah prophesying a painful death from bowel disease, which came true. He died without being mourned.",
+              length: 8, predecessor: "Jehoshaphat", successor: "Ahaziah",
+              contemporaryIsrael: "Jehoram (Joram)" },
+            { id: 106, name: "Ahaziah", kingdom: "judah", start: 841, end: 841, assessment: "evil", prophets: [], 
+              description: "Son of Jehoram and Athaliah. He allied with his uncle Joram of Israel against Hazael. When Jehu executed Joram, Ahaziah fled but was wounded and died at Megiddo. His brief reign was entirely influenced by the house of Ahab.",
+              length: 1, predecessor: "Jehoram", successor: "Athaliah",
+              contemporaryIsrael: "Joram, Jehu" },
+            { id: 107, name: "Athaliah", kingdom: "judah", start: 841, end: 835, assessment: "evil", prophets: [], 
+              description: "Only queen of Judah, daughter of Ahab and Jezebel. Upon Ahaziah's death, she murdered the royal family—except infant Joash, hidden by Jehosheba. She usurped the throne for six years, promoting Baal worship. Jehoiada the priest eventually led a coup, crowned Joash, and had Athaliah executed.",
+              length: 6, predecessor: "Ahaziah", successor: "Joash",
+              contemporaryIsrael: "Jehu" },
+            { id: 108, name: "Joash", kingdom: "judah", start: 835, end: 796, assessment: "mixed", prophets: ["Joel","Zechariah"], 
+              description: "Crowned at age seven under Jehoiada's guidance. He repaired the temple and walked rightly while Jehoiada lived. After Jehoiada's death, he listened to officials who turned to idolatry. When Zechariah (Jehoiada's son) rebuked them, Joash ordered him stoned. Within a year, Hazael invaded, and Joash bribed him with temple treasures. His servants assassinated him for the blood of Zechariah.",
+              length: 40, predecessor: "Athaliah", successor: "Amaziah",
+              contemporaryIsrael: "Jehu, Jehoahaz, Jehoash" },
+            { id: 109, name: "Amaziah", kingdom: "judah", start: 796, end: 767, assessment: "mixed", prophets: ["unnamed prophet"], 
+              description: "Executed his father's assassins but spared their children, obeying Deuteronomy. He defeated Edom in the Valley of Salt, but brought back Edomite gods and worshiped them. Challenged Jehoash of Israel to battle and was soundly defeated, Jerusalem's wall breached, temple treasures taken. He was later assassinated at Lachish.",
+              length: 29, predecessor: "Joash", successor: "Uzziah",
+              contemporaryIsrael: "Jehoash, Jeroboam II" },
+            { id: 110, name: "Uzziah (Azariah)", kingdom: "judah", start: 767, end: 748, assessment: "good", prophets: ["Isaiah","Zechariah"], 
+              description: "Powerful king who expanded territory, rebuilt Elath, and developed military innovations (siege engines, fortified towers). He sought God in the days of Zechariah and prospered. But his pride led him to burn incense in the temple—an act reserved for priests. He was struck with leprosy and lived in isolation until death, while Jotham governed.",
+              length: 41, predecessor: "Amaziah", successor: "Jotham",
+              contemporaryIsrael: "Jeroboam II, Zechariah, Shallum, Menahem" },
+            { id: 111, name: "Jotham", kingdom: "judah", start: 748, end: 732, assessment: "good", prophets: ["Isaiah","Micah"], 
+              description: "Regent during Uzziah's leprosy, then sole ruler. He built the Upper Gate of the temple, fortified cities, and subdued the Ammonites. He walked in Uzziah's ways but did not enter the temple. However, the people continued corrupt practices. His reign saw the beginning of Isaiah's and Micah's ministries.",
+              length: 16, predecessor: "Uzziah", successor: "Ahaz",
+              contemporaryIsrael: "Menahem, Pekahiah, Pekah" },
+            { id: 112, name: "Ahaz", kingdom: "judah", start: 732, end: 716, assessment: "evil", prophets: ["Isaiah","Micah"], 
+              description: "Extremely wicked king who sacrificed his son to Molech in the Valley of Hinnom. When Rezin of Syria and Pekah of Israel attacked, he ignored Isaiah's sign (Immanuel) and appealed to Tiglath-Pileser, becoming an Assyrian vassal. He introduced a pagan altar in the temple and shut its doors. His policies brought spiritual and political decline.",
+              length: 16, predecessor: "Jotham", successor: "Hezekiah",
+              contemporaryIsrael: "Pekah, Hoshea" },
+            { id: 113, name: "Hezekiah", kingdom: "judah", start: 716, end: 687, assessment: "good", prophets: ["Isaiah","Micah"], 
+              description: "Greatest reforming king since David. He purged the temple, removed high places, and even broke the bronze serpent (Nehushtan) when it became an idol. He trusted God during Sennacherib's invasion; the angel killed 185,000 Assyrians. He miraculously recovered from illness (Isaiah's fig cake) and received Babylonian envoys, later showing off his treasures—Isaiah rebuked him.",
+              length: 29, predecessor: "Ahaz", successor: "Manasseh",
+              contemporaryIsrael: "Hoshea (fall of Israel in 722)" },
+            { id: 114, name: "Manasseh", kingdom: "judah", start: 687, end: 642, assessment: "evil", prophets: ["Isaiah (trad. martyred)"], 
+              description: "Most wicked king, reversed Hezekiah's reforms. Rebuilt high places, erected altars for Baal, placed an Asherah pole in the temple, practiced sorcery, and shed much innocent blood (tradition says Isaiah was sawn in two). According to 2 Chronicles, he was captured by Assyrians, repented, and restored some worship, but the damage was irreversible. His long reign cemented idolatry.",
+              length: 55, predecessor: "Hezekiah", successor: "Amon",
+              contemporaryIsrael: "(none, Israel exiled)" },
+            { id: 115, name: "Amon", kingdom: "judah", start: 642, end: 640, assessment: "evil", prophets: [], 
+              description: "Son of Manasseh. He followed his father's early idolatry, not the later repentance. He was assassinated by his officials, but the people killed the conspirators and made his son Josiah king.",
+              length: 2, predecessor: "Manasseh", successor: "Josiah",
+              contemporaryIsrael: "none" },
+            { id: 116, name: "Josiah", kingdom: "judah", start: 640, end: 609, assessment: "good", prophets: ["Huldah","Zephaniah","Jeremiah"], 
+              description: "Became king at eight, began seeking God at sixteen. At twenty‑six he purged Judah and Jerusalem of high places, Asherah poles, and idols, even extending into former Israel. During temple repairs, Hilkiah found the Book of the Law; Josiah tore his clothes and consulted Huldah, who confirmed judgment but said he would die in peace. He renewed the covenant, celebrated Passover, but was killed at Megiddo by Pharaoh Neco despite Neco's warning.",
+              length: 31, predecessor: "Amon", successor: "Jehoahaz",
+              contemporaryIsrael: "none (former Israel territory)" },
+            { id: 117, name: "Jehoahaz", kingdom: "judah", start: 609, end: 609, assessment: "evil", prophets: ["Jeremiah"], 
+              description: "Son of Josiah, chosen by the people. He reigned three months, did evil, and was deposed by Pharaoh Neco, who imposed tribute. He died in Egypt.",
+              length: 0.25, predecessor: "Josiah", successor: "Jehoiakim",
+              contemporaryIsrael: "none" },
+            { id: 118, name: "Jehoiakim", kingdom: "judah", start: 609, end: 598, assessment: "evil", prophets: ["Jeremiah","Habakkuk","Uriah"], 
+              description: "Placed on throne by Neco, originally named Eliakim. He taxed Judah heavily to pay tribute, built lavish palaces while exploiting the poor. He burned Jeremiah's scroll piece by piece and killed the prophet Uriah. He rebelled against Babylon after three years, leading to Babylonian raids.",
+              length: 11, predecessor: "Jehoahaz", successor: "Jehoiachin",
+              contemporaryIsrael: "none" },
+            { id: 119, name: "Jehoiachin", kingdom: "judah", start: 598, end: 597, assessment: "evil", prophets: ["Jeremiah"], 
+              description: "Reigned three months and ten days. Surrendered to Nebuchadnezzar, who exiled him and 10,000 leaders, including Ezekiel. In Babylon, he was later released from prison by Evil-Merodach and given a regular allowance.",
+              length: 0.25, predecessor: "Jehoiakim", successor: "Zedekiah",
+              contemporaryIsrael: "none" },
+            { id: 120, name: "Zedekiah", kingdom: "judah", start: 597, end: 586, assessment: "evil", prophets: ["Jeremiah","Ezekiel"], 
+              description: "Last king of Judah, installed by Babylon. He wavered and rebelled, despite Jeremiah's warnings to submit. He sought Egyptian help, prompting Nebuchadnezzar to besiege Jerusalem. The city fell in 586 BC; his sons were killed before his eyes, then he was blinded and exiled. The temple was destroyed.",
+              length: 11, predecessor: "Jehoiachin", successor: "None (exile)",
+              contemporaryIsrael: "none" }
+        ];
+
+        // Prophets data (unchanged, but used for overlap resolution)
+        const prophetsData = [
+            { name: "Elijah", start: 870, end: 850, kingdom: "israel", description: "Confronted Ahab. Mount Carmel." },
+            { name: "Elisha", start: 850, end: 800, kingdom: "israel", description: "Double portion. Many miracles." },
+            { name: "Jonah", start: 780, end: 760, kingdom: "israel", description: "Prophesied restoration for Jeroboam II." },
+            { name: "Amos", start: 760, end: 750, kingdom: "israel", description: "Herdsman from Tekoa. Social justice." },
+            { name: "Hosea", start: 755, end: 715, kingdom: "israel", description: "Married Gomer. Symbol of God's faithfulness." },
+            { name: "Isaiah", start: 740, end: 700, kingdom: "judah", description: "Visionary. Messianic prophecies." },
+            { name: "Micah", start: 735, end: 700, kingdom: "judah", description: "Bethlehem prophecy. Social justice." },
+            { name: "Zephaniah", start: 640, end: 620, kingdom: "judah", description: "Day of the Lord." },
+            { name: "Jeremiah", start: 627, end: 580, kingdom: "judah", description: "Weeping prophet. New covenant." },
+            { name: "Habakkuk", start: 609, end: 598, kingdom: "judah", description: "Righteous shall live by faith." },
+            { name: "Ezekiel", start: 593, end: 570, kingdom: "judah", description: "Valley of dry bones." },
+            { name: "Daniel", start: 605, end: 530, kingdom: "judah", description: "Exiled. Visions." },
+            { name: "Joel", start: 835, end: 800, kingdom: "judah", description: "Locust plague. Pentecost." },
+            { name: "Huldah", start: 640, end: 620, kingdom: "judah", description: "Prophetess consulted by Josiah." },
+            { name: "Nahum", start: 630, end: 620, kingdom: "judah", description: "Against Nineveh." },
+            { name: "Obadiah", start: 586, end: 580, kingdom: "judah", description: "Against Edom." },
+            { name: "Shemaiah", start: 931, end: 900, kingdom: "judah", description: "Prevented civil war." },
+            { name: "Ahijah", start: 931, end: 910, kingdom: "israel", description: "Prophesied division." },
+            { name: "Micaiah", start: 870, end: 853, kingdom: "both", description: "Saw heavenly vision." },
+            { name: "Jehu (son of Hanani)", start: 909, end: 886, kingdom: "israel", description: "Against Baasha." },
+            { name: "Hanani", start: 911, end: 890, kingdom: "judah", description: "Rebuked Asa." },
+            { name: "Zechariah (son of Jehoiada)", start: 820, end: 800, kingdom: "judah", description: "Stoned in temple court." },
+            { name: "Jahaziel", start: 855, end: 845, kingdom: "judah", description: "Prophesied victory over Moab." },
+            { name: "Eliezer", start: 855, end: 845, kingdom: "judah", description: "Prophesied against ships." }
+        ];
+
+        // DOM elements
+        const timelineContainer = document.getElementById('timelineContainer');
+        const israelRow = document.getElementById('israelRow');
+        const judahRow = document.getElementById('judahRow');
+        const prophetRow1 = document.getElementById('prophetRow1');
+        const prophetRow2 = document.getElementById('prophetRow2');
+        const prophetRow3 = document.getElementById('prophetRow3');
+        const kingDetails = document.getElementById('kingDetails');
+        const tooltip = document.getElementById('tooltip');
+        const kingdomFilter = document.getElementById('kingdomFilter');
+        const assessmentFilter = document.getElementById('assessmentFilter');
+        const yearRange = document.getElementById('yearRange');
+        const yearDisplay = document.getElementById('yearDisplay');
+        const zoomIn = document.getElementById('zoomIn');
+        const zoomOut = document.getElementById('zoomOut');
+        const resetZoom = document.getElementById('resetZoom');
+
+        let currentZoom = 1;
+        const minYear = 931;
+        const maxYear = 550;
+
+        function calculatePosition(year) {
+            const padding = 8;
+            const availableWidth = 84;
+            const yearRange_total = maxYear - minYear;
+            const position = padding + ((year - minYear) / yearRange_total) * availableWidth;
+            return Math.min(98, Math.max(2, position));
+        }
+
+        function addTimeMarkers() {
+            const markers = [930, 900, 850, 800, 750, 722, 700, 650, 600, 586, 550];
+            markers.forEach(year => {
+                const marker = document.createElement('div');
+                marker.className = 'time-marker';
+                marker.style.left = calculatePosition(year) + '%';
+                marker.textContent = year + ' BC';
+                timelineContainer.appendChild(marker);
+            });
+        }
+
+        // Get prophets associated with a king (for tooltip)
+        function getProphetDetailsForKing(king) {
+            if (!king.prophets || king.prophets.length === 0) return [];
+            return king.prophets.map(prophetName => {
+                const found = prophetsData.find(p => p.name.includes(prophetName.split(' ')[0]) || p.name === prophetName);
+                return found || { name: prophetName, description: 'Prophet during this reign' };
+            }).filter(p => p);
+        }
+
+        function createKingBlock(king) {
+            const block = document.createElement('div');
+            block.className = `king-block ${king.kingdom} ${king.assessment}`;
+            const startPos = calculatePosition(king.start);
+            const endPos = calculatePosition(king.end);
+            const width = endPos - startPos;
+            block.style.left = startPos + '%';
+            block.style.width = width + '%';
+            block.textContent = (width > 4) ? king.name : (width > 2 ? king.name.substring(0,3)+'…' : '•');
+            
+            if (king.prophets && king.prophets.length > 0) {
+                const indicator = document.createElement('div');
+                indicator.className = 'prophet-indicator';
+                block.appendChild(indicator);
+            }
+            
+            block.addEventListener('mouseenter', (e) => {
+                const prophetDetails = getProphetDetailsForKing(king);
+                let prophetsHtml = '<div class="prophet-list"><strong>📖 Contemporary Prophets:</strong>';
+                prophetDetails.forEach(p => {
+                    prophetsHtml += `<div class="prophet-item"><span class="prophet-dot"></span><span><strong>${p.name}</strong> - ${p.description || ''}</span></div>`;
+                });
+                prophetsHtml += '</div>';
+                tooltip.innerHTML = `<h4>👑 ${king.name}</h4><p>${king.start}-${king.end} BC (${king.assessment})</p><p>${king.kingdom}</p>${prophetsHtml}<p style="margin-top:8px;">Click for full details</p>`;
+                tooltip.style.opacity = '1';
+                tooltip.style.left = (e.pageX + 20) + 'px';
+                tooltip.style.top = (e.pageY - 100) + 'px';
+            });
+            block.addEventListener('mousemove', (e) => {
+                tooltip.style.left = (e.pageX + 20) + 'px';
+                tooltip.style.top = (e.pageY - 100) + 'px';
+            });
+            block.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
+            block.addEventListener('click', () => showKingDetails(king));
+            return block;
+        }
+
+        function createProphetBlock(prophet, rowIndex) {
+            const block = document.createElement('div');
+            block.className = 'prophet-block';
+            const startPos = calculatePosition(prophet.start);
+            const endPos = calculatePosition(prophet.end);
+            const width = endPos - startPos;
+            block.style.left = startPos + '%';
+            block.style.width = Math.max(width, 1.5) + '%';
+            block.textContent = prophet.name;
+            block.addEventListener('mouseenter', (e) => {
+                tooltip.innerHTML = `<h4>🔮 ${prophet.name}</h4><p><strong>Ministry:</strong> ${prophet.start}-${prophet.end} BC</p><p><strong>Kingdom:</strong> ${prophet.kingdom}</p><p>${prophet.description}</p>`;
+                tooltip.style.opacity = '1';
+                tooltip.style.left = (e.pageX + 20) + 'px';
+                tooltip.style.top = (e.pageY - 80) + 'px';
+            });
+            block.addEventListener('mousemove', (e) => {
+                tooltip.style.left = (e.pageX + 20) + 'px';
+                tooltip.style.top = (e.pageY - 80) + 'px';
+            });
+            block.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
+            return block;
+        }
+
+        // Assign prophets to rows to avoid overlap (simple greedy algorithm)
+        function assignProphetRows(prophets) {
+            const rows = [[], [], []]; // three rows
+            const sorted = [...prophets].sort((a,b) => a.start - b.start);
+            sorted.forEach(p => {
+                const startPos = calculatePosition(p.start);
+                const endPos = calculatePosition(p.end);
+                for (let r = 0; r < 3; r++) {
+                    let conflict = rows[r].some(existing => {
+                        const eStart = calculatePosition(existing.start);
+                        const eEnd = calculatePosition(existing.end);
+                        return !(endPos <= eStart || startPos >= eEnd);
+                    });
+                    if (!conflict) {
+                        rows[r].push(p);
+                        break;
+                    }
+                }
+                // if all rows conflict, push to row 0 (rare, but fallback)
+                if (!rows.some(r => r.includes(p))) rows[0].push(p);
+            });
+            return rows;
+        }
+
+        function showKingDetails(king) {
+            const prophetDetails = getProphetDetailsForKing(king);
+            // Contemporary ruler from other kingdom
+            let contemporary = '';
+            if (king.kingdom === 'israel') {
+                contemporary = king.contemporaryJudah || 'See details';
+            } else {
+                contemporary = king.contemporaryIsrael || 'See details';
+            }
+            let prophetsHtml = '';
+            prophetDetails.forEach(p => { prophetsHtml += `<span class="prophet-tag">🔮 ${p.name}</span>`; });
+            if (!prophetDetails.length) prophetsHtml = '<span class="prophet-tag">No prophets recorded</span>';
+            
+            const detailsHTML = `
+                <div class="details-header"><h2>${king.name}</h2>
+                <span class="kingdom-badge badge-${king.kingdom}">${king.kingdom === 'israel' ? '🇮🇱 Israel' : '🇯🇴 Judah'}</span>
+                <span class="assessment-badge assessment-${king.assessment}">${king.assessment.toUpperCase()}</span></div>
+                <div class="details-grid">
+                    <div class="detail-card"><h3>📅 Reign</h3><p>${king.start} - ${king.end} BC</p><p>${king.length} years</p></div>
+                    <div class="detail-card"><h3>🔄 Succession</h3><p><strong>Predecessor:</strong> ${king.predecessor}</p><p><strong>Successor:</strong> ${king.successor}</p></div>
+                    <div class="detail-card"><h3>👥 Contemporary ruler</h3><p><strong>${king.kingdom === 'israel' ? 'Judah' : 'Israel'}:</strong> ${contemporary}</p></div>
+                    <div class="detail-card"><h3>🔮 Prophets</h3><div style="display:flex;flex-wrap:wrap;gap:8px;">${prophetsHtml}</div></div>
+                </div>
+                <div class="detail-card"><h3>📖 Expanded description</h3><p>${king.description}</p></div>
+            `;
+            kingDetails.innerHTML = detailsHTML;
+            kingDetails.classList.add('active');
+        }
+
+        function filterKings() {
+            const kingdom = kingdomFilter.value;
+            const assessment = assessmentFilter.value;
+            const filteredIsrael = kingsData.filter(k => k.kingdom === 'israel' && (kingdom === 'all' || kingdom === 'israel') && (assessment === 'all' || k.assessment === assessment));
+            const filteredJudah = kingsData.filter(k => k.kingdom === 'judah' && (kingdom === 'all' || kingdom === 'judah') && (assessment === 'all' || k.assessment === assessment));
+            return { israel: filteredIsrael, judah: filteredJudah };
+        }
+
+        function updateTimeline() {
+            israelRow.innerHTML = '';
+            judahRow.innerHTML = '';
+            prophetRow1.innerHTML = '';
+            prophetRow2.innerHTML = '';
+            prophetRow3.innerHTML = '';
+            
+            const filtered = filterKings();
+            filtered.israel.forEach(king => israelRow.appendChild(createKingBlock(king)));
+            filtered.judah.forEach(king => judahRow.appendChild(createKingBlock(king)));
+            
+            // Assign prophets to rows to avoid overlap
+            const rows = assignProphetRows(prophetsData);
+            rows[0].forEach(p => prophetRow1.appendChild(createProphetBlock(p, 0)));
+            rows[1].forEach(p => prophetRow2.appendChild(createProphetBlock(p, 1)));
+            rows[2].forEach(p => prophetRow3.appendChild(createProphetBlock(p, 2)));
+            
+            yearDisplay.textContent = yearRange.value + ' BC';
+        }
+
+        function initializeTimeline() {
+            addTimeMarkers();
+            updateTimeline();
+            timelineContainer.style.minWidth = '1400px';
+        }
+
+        function applyZoom() {
+            const wrapper = document.querySelector('.timeline-wrapper');
+            wrapper.style.overflowX = 'auto';
+            timelineContainer.style.transform = `scale(${currentZoom})`;
+            timelineContainer.style.transformOrigin = 'top left';
+            timelineContainer.style.minWidth = `${1400 * currentZoom}px`;
+        }
+
+        kingdomFilter.addEventListener('change', updateTimeline);
+        assessmentFilter.addEventListener('change', updateTimeline);
+        yearRange.addEventListener('input', () => {
+            yearDisplay.textContent = yearRange.value + ' BC';
+            updateTimeline();
+        });
+        zoomIn.addEventListener('click', () => { currentZoom = Math.min(currentZoom + 0.2, 2.5); applyZoom(); });
+        zoomOut.addEventListener('click', () => { currentZoom = Math.max(currentZoom - 0.2, 0.6); applyZoom(); });
+        resetZoom.addEventListener('click', () => { currentZoom = 1; applyZoom(); });
+        document.addEventListener('click', (e) => { if (!e.target.closest('.king-block')) tooltip.style.opacity = '0'; });
+        window.addEventListener('load', initializeTimeline);
+    </script>
+</body>
+</html>
