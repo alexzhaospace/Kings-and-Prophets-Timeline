@@ -1038,7 +1038,7 @@
                 <span class="kingdom-badge badge-${king.kingdom}">${king.kingdom === 'israel' ? '🇮🇱 Israel' : '🇯🇴 Judah'}</span>
                 <span class="assessment-badge assessment-${king.assessment}">${king.assessment.toUpperCase()}</span></div>
                 <div class="details-grid">
-                    <div class="detail-card"><h3>📅 Reign</h3><p>${king.start} - ${king.end} BC</p><p>${king.length} years</p></div>
+                    <div class="detail-card"><h3>📅 Reign</h3><p>${king.start} - ${king.end} BC</p><p2>${king.length} years</p2></div>
                     <div class="detail-card"><h3>🔄 Succession</h3><p><strong>Predecessor:</strong> ${king.predecessor}</p><p><strong>Successor:</strong> ${king.successor}</p></div>
                     <div class="detail-card"><h3>👥 Contemporary ruler</h3><p><strong>${king.kingdom === 'israel' ? 'Judah' : 'Israel'}:</strong> ${contemporary}</p></div>
                     <div class="detail-card"><h3>🔮 Prophets</h3><div style="display:flex;flex-wrap:wrap;gap:8px;">${prophetsHtml}</div></div>
